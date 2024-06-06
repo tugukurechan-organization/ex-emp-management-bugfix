@@ -9,12 +9,9 @@ import jakarta.validation.constraints.NotBlank;
  * 
  */
 public class LoginForm {
-
 	/** メールアドレス */
-	@NotBlank(message = "メールアドレスは必須です")
 	private String mailAddress;
 	/** パスワード */
-	@NotBlank(message = "パスワードは必須です")
 	private String password;
 
 	public String getMailAddress() {

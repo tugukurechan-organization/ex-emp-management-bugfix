@@ -9,3 +9,9 @@
 .error-messages {
   color: #ff0000;
 }
+.searchByName{
+float:right;
+}
+.searchByName button{
+float:right;
+}

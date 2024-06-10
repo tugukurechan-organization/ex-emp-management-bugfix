@@ -93,7 +93,13 @@ public class EmployeeController {
 		return "redirect:/employee/showList";
 	}
 
-
+	/**
+	 * 名前であいまい検索をする.
+	 *
+	 * @param model スコープ
+	 * @param name 名前
+	 * @return あいまい検索の結果
+	 */
 	@PostMapping("/search")
 	public String seachByName(Model model,String name){
 		List<Employee> employeeList = employeeService.searchByName(name);

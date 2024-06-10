@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
-//import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.domain.Administrator;
 
@@ -37,8 +37,8 @@ public class AdministratorRepository {
 	@Autowired
 	private NamedParameterJdbcTemplate template;
 
-//	@Autowired
-//	private PasswordEncoder passwordEncoder;
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * 主キーから管理者情報を取得します.
@@ -62,14 +62,19 @@ public class AdministratorRepository {
 	 * @return 管理者情報 存在しない場合はnullを返します
 	 */
 	public Administrator findByMailAddressAndPassword(String mailAddress, String password) {
-		String sql = "select id,name,mail_address,password from administrators where mail_address= '" + mailAddress
-				+ "' and password='" + password + "'";
-		SqlParameterSource param = new MapSqlParameterSource();
+		String sql = "select id,name,mail_address,password from administrators where mail_address=:mailAddress;";
+		String hashedPassword = passwordEncoder.encode(password);
+		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress",mailAddress);
 		List<Administrator> administratorList = template.query(sql, param, ADMINISTRATOR_ROW_MAPPER);
-		if (administratorList.size() == 0) {
+		System.out.println("findby:"+hashedPassword);
+		if (administratorList.isEmpty()) {
 			return null;
 		}
-		return administratorList.get(0);
+		Administrator administrator = administratorList.get(0);
+		if(passwordEncoder.matches(password,administrator.getPassword())){
+			return administrator;
+		}
+		return null;
 	}
 
 	/**
@@ -79,10 +84,11 @@ public class AdministratorRepository {
 	 */
 	public void insert(Administrator administrator) {
 		SqlParameterSource param = new BeanPropertySqlParameterSource(administrator);
-//		String hashedPassword = passwordEncoder.encode(administrator.getPassword());
-//		administrator.setPassword(hashedPassword);
+		String hashedPassword = passwordEncoder.encode(administrator.getPassword());
+		administrator.setPassword(hashedPassword);
 		String sql = "insert into administrators(name,mail_address,password)values(:name,:mailAddress,:password);";
 		template.update(sql, param);
+		System.out.println("insert:"+hashedPassword);
 	}
 
 	/**

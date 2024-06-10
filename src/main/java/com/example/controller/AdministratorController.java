@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -24,9 +25,8 @@ import java.util.Objects;
 
 /**
  * 管理者情報を操作するコントローラー.
- * 
- * @author igamasayuki
  *
+ * @author igamasayuki
  */
 @Controller
 @RequestMapping("/")
@@ -81,7 +81,7 @@ public class AdministratorController {
 	public String insert(@Validated InsertAdministratorForm form, BindingResult result,
 						 RedirectAttributes redirectAttributes) {
 
-		// 入力値チェック
+		// メールアドレス重複チェック
 		if (administratorService.findByEmail(form.getMailAddress()) != null) {
 			result.rejectValue("mailAddress","error.mailAddress","そのメールアドレスは使用されています");
 		}

@@ -37,8 +37,6 @@ public class AdministratorRepository {
 	@Autowired
 	private NamedParameterJdbcTemplate template;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * 主キーから管理者情報を取得します.
@@ -63,18 +61,12 @@ public class AdministratorRepository {
 	 */
 	public Administrator findByMailAddressAndPassword(String mailAddress, String password) {
 		String sql = "select id,name,mail_address,password from administrators where mail_address=:mailAddress;";
-		String hashedPassword = passwordEncoder.encode(password);
 		SqlParameterSource param = new MapSqlParameterSource().addValue("mailAddress",mailAddress);
 		List<Administrator> administratorList = template.query(sql, param, ADMINISTRATOR_ROW_MAPPER);
-		System.out.println("findby:"+hashedPassword);
 		if (administratorList.isEmpty()) {
 			return null;
 		}
-		Administrator administrator = administratorList.get(0);
-		if(passwordEncoder.matches(password,administrator.getPassword())){
-			return administrator;
-		}
-		return null;
+		return administratorList.get(0);
 	}
 
 	/**
@@ -84,11 +76,8 @@ public class AdministratorRepository {
 	 */
 	public void insert(Administrator administrator) {
 		SqlParameterSource param = new BeanPropertySqlParameterSource(administrator);
-		String hashedPassword = passwordEncoder.encode(administrator.getPassword());
-		administrator.setPassword(hashedPassword);
 		String sql = "insert into administrators(name,mail_address,password)values(:name,:mailAddress,:password);";
 		template.update(sql, param);
-		System.out.println("insert:"+hashedPassword);
 	}
 
 	/**

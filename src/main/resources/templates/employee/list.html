@@ -103,9 +103,10 @@
         >
           <!-- ここから上を編集する必要はありません -->
 
+          <div th:text="${notFoundMessage}"></div>
           <!-- ここにモックのtable要素を貼り付けます -->
 
-          <table class="table table-striped">
+          <table class="table table-striped" th:if="${employeeList}">
             <thead>
               <tr>
                 <th>従業員名</th>

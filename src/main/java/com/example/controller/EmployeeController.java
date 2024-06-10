@@ -51,6 +51,9 @@ public class EmployeeController {
 	@GetMapping("/showList")
 	public String showList(Model model) {
 		List<Employee> employeeList = employeeService.showList();
+		if (employeeList.isEmpty()) {
+			model.addAttribute("noFoundMessage","該当者はいませんでした。");
+		}
 		model.addAttribute("employeeList", employeeList);
 		return "employee/list";
 	}
@@ -101,9 +104,13 @@ public class EmployeeController {
 	 * @return あいまい検索の結果
 	 */
 	@PostMapping("/search")
-	public String seachByName(Model model,String name){
+	public String searchByName(Model model,String name){
 		List<Employee> employeeList = employeeService.searchByName(name);
-		model.addAttribute("employeeList", employeeList);
+		if(employeeList == null){
+			model.addAttribute("notFoundMessage","該当データがありませんでした。");
+		}else{
+			model.addAttribute("employeeList", employeeList);
+		}
 		return "employee/list";
 	}
 }

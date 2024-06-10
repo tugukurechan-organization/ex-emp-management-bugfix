@@ -3,6 +3,7 @@ package com.example.controller;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import com.example.service.AdministratorService;
 import jakarta.servlet.http.HttpSession;
 
 import java.sql.ResultSet;
+import java.util.Objects;
 
 /**
  * 管理者情報を操作するコントローラー.
@@ -77,15 +79,28 @@ public class AdministratorController {
 	 */
 	@PostMapping("/insert")
 	public String insert(@Validated InsertAdministratorForm form, BindingResult result,
-						 RedirectAttributes redirectAttributes){
+						 RedirectAttributes redirectAttributes) {
+
+		// 入力値チェック
+		if (administratorService.findByEmail(form.getMailAddress()) != null) {
+			result.rejectValue("mailAddress","error.mailAddress","そのメールアドレスは使用されています");
+		}
+
+		// 確認パスワードが一致しているか
+		if (!Objects.equals(form.getPassword(), form.getConfirmPassword())) {
+			result.rejectValue("confirmPassword","error.confirmPassword","パスワードと確認パスワードが異なります");
+		}
+
 		if(result.hasErrors()){
 			return toInsert(form);
 		}
+
+		// errorがなかったら
 		Administrator administrator = new Administrator();
 		// フォームからドメインにプロパティ値をコピー
 		BeanUtils.copyProperties(form, administrator);
 		administratorService.insert(administrator);
-		redirectAttributes.addFlashAttribute("administrator",administrator);
+		redirectAttributes.addFlashAttribute("administrator", administrator);
 		return "redirect:/";
 	}
 

@@ -46,7 +46,6 @@ public class AdministratorService {
 	 */
 	public Administrator login(String mailAddress, String password) {
 		Administrator administrator = administratorRepository.findByMailAddressAndPassword(mailAddress, password);
-//		String hashedPassword = passwordEncoder.encode(password);
 		if(passwordEncoder.matches(password,administrator.getPassword())){
 			return administrator;
 		}

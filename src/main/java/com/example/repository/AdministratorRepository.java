@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
+//import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.example.domain.Administrator;
 
@@ -35,6 +36,9 @@ public class AdministratorRepository {
 
 	@Autowired
 	private NamedParameterJdbcTemplate template;
+
+//	@Autowired
+//	private PasswordEncoder passwordEncoder;
 
 	/**
 	 * 主キーから管理者情報を取得します.
@@ -75,6 +79,8 @@ public class AdministratorRepository {
 	 */
 	public void insert(Administrator administrator) {
 		SqlParameterSource param = new BeanPropertySqlParameterSource(administrator);
+//		String hashedPassword = passwordEncoder.encode(administrator.getPassword());
+//		administrator.setPassword(hashedPassword);
 		String sql = "insert into administrators(name,mail_address,password)values(:name,:mailAddress,:password);";
 		template.update(sql, param);
 	}

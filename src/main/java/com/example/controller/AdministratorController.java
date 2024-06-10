@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -79,14 +80,16 @@ public class AdministratorController {
     @PostMapping("/insert")
     public String insert(@Validated InsertAdministratorForm form, BindingResult result,
                          RedirectAttributes redirectAttributes,Model model) {
+
+        if (administratorService.findByEmail(form.getMailAddress()) != null) {
+//            result.addError(new ObjectError());
+            result.rejectValue("mailAddress","error.mailAddress","そのメールアドレスはすでに使用されています");
+        }
+
         if (result.hasErrors()) {
             return toInsert(model,form);
         }
-        if (administratorService.findByEmail(form.getMailAddress()) != null) {
-			model.addAttribute("mailError","そのメールアドレスは使用されています");
-			return toInsert(model,form);
 
-        }
 
         Administrator administrator = new Administrator();
 

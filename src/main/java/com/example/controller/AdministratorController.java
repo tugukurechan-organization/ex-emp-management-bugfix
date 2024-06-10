@@ -3,7 +3,9 @@ package com.example.controller;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,114 +24,125 @@ import java.sql.ResultSet;
 
 /**
  * 管理者情報を操作するコントローラー.
- * 
- * @author igamasayuki
  *
+ * @author igamasayuki
  */
 @Controller
 @RequestMapping("/")
 public class AdministratorController {
 
-	@Autowired
-	private AdministratorService administratorService;
+    @Autowired
+    private AdministratorService administratorService;
 
-	@Autowired
-	private HttpSession session;
+    @Autowired
+    private HttpSession session;
 
-	/**
-	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
-	 * 
-	 * @return フォーム
-	 */
-	@ModelAttribute
-	public InsertAdministratorForm setUpInsertAdministratorForm() {
-		return new InsertAdministratorForm();
-	}
+    /**
+     * 使用するフォームオブジェクトをリクエストスコープに格納する.
+     *
+     * @return フォーム
+     */
+    @ModelAttribute
+    public InsertAdministratorForm setUpInsertAdministratorForm() {
+        return new InsertAdministratorForm();
+    }
 
-	/**
-	 * 使用するフォームオブジェクトをリクエストスコープに格納する.
-	 * 
-	 * @return フォーム
-	 */
-	@ModelAttribute
-	public LoginForm setUpLoginForm() {
-		return new LoginForm();
-	}
+    /**
+     * 使用するフォームオブジェクトをリクエストスコープに格納する.
+     *
+     * @return フォーム
+     */
+    @ModelAttribute
+    public LoginForm setUpLoginForm() {
+        return new LoginForm();
+    }
 
-	/////////////////////////////////////////////////////
-	// ユースケース：管理者を登録する
-	/////////////////////////////////////////////////////
-	/**
-	 * 管理者登録画面を出力します.
-	 * 
-	 * @return 管理者登録画面
-	 */
-	@GetMapping("/toInsert")
-	public String toInsert(InsertAdministratorForm form) {
-		return "administrator/insert";
-	}
+    /////////////////////////////////////////////////////
+    // ユースケース：管理者を登録する
+    /////////////////////////////////////////////////////
 
-	/**
-	 * 管理者情報を登録します.
-	 * 
-	 * @param form 管理者情報用フォーム
-	 * @return ログイン画面へリダイレクト
-	 */
-	@PostMapping("/insert")
-	public String insert(@Validated InsertAdministratorForm form, BindingResult result,
-						 RedirectAttributes redirectAttributes){
-		if(result.hasErrors()){
-			return toInsert(form);
-		}
-		Administrator administrator = new Administrator();
-		// フォームからドメインにプロパティ値をコピー
-		BeanUtils.copyProperties(form, administrator);
-		administratorService.insert(administrator);
-		redirectAttributes.addFlashAttribute("administrator",administrator);
-		return "redirect:/";
-	}
+    /**
+     * 管理者登録画面を出力します.
+     *
+     * @return 管理者登録画面
+     */
+    @GetMapping("/toInsert")
+    public String toInsert(Model model, InsertAdministratorForm form) {
+        return "administrator/insert";
+    }
 
-	/////////////////////////////////////////////////////
-	// ユースケース：ログインをする
-	/////////////////////////////////////////////////////
-	/**
-	 * ログイン画面を出力します.
-	 * 
-	 * @return ログイン画面
-	 */
-	@GetMapping("/")
-	public String toLogin() {
-		return "administrator/login";
-	}
+    /**
+     * 管理者情報を登録します.
+     *
+     * @param form 管理者情報用フォーム
+     * @return ログイン画面へリダイレクト
+     */
+    @PostMapping("/insert")
+    public String insert(@Validated InsertAdministratorForm form, BindingResult result,
+                         RedirectAttributes redirectAttributes,Model model) {
 
-	/**
-	 * ログインします.
-	 * 
-	 * @param form 管理者情報用フォーム
-	 * @return ログイン後の従業員一覧画面
-	 */
-	@PostMapping("/login")
-	public String login(LoginForm form, RedirectAttributes redirectAttributes) {
-		Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
-		if (administrator == null) {
-			redirectAttributes.addFlashAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
-			return "redirect:/";
-		}
-		return "redirect:/employee/showList";
-	}
+        if (administratorService.findByEmail(form.getMailAddress()) != null) {
+//            result.addError(new ObjectError());
+            result.rejectValue("mailAddress","error.mailAddress","そのメールアドレスはすでに使用されています");
+        }
 
-	/////////////////////////////////////////////////////
-	// ユースケース：ログアウトをする
-	/////////////////////////////////////////////////////
-	/**
-	 * ログアウトをします. (SpringSecurityに任せるためコメントアウトしました)
-	 * 
-	 * @return ログイン画面
-	 */
-	@GetMapping(value = "/logout")
-	public String logout() {
-		session.invalidate();
-		return "redirect:/";
-	}
+        if (result.hasErrors()) {
+            return toInsert(model,form);
+        }
+
+
+        Administrator administrator = new Administrator();
+
+        // フォームからドメインにプロパティ値をコピー
+        BeanUtils.copyProperties(form, administrator);
+        administratorService.insert(administrator);
+        redirectAttributes.addFlashAttribute("administrator", administrator);
+        return "redirect:/";
+    }
+
+    /////////////////////////////////////////////////////
+    // ユースケース：ログインをする
+    /////////////////////////////////////////////////////
+
+    /**
+     * ログイン画面を出力します.
+     *
+     * @return ログイン画面
+     */
+    @GetMapping("/")
+    public String toLogin() {
+        return "administrator/login";
+    }
+
+    /**
+     * ログインします.
+     *
+     * @param form 管理者情報用フォーム
+     * @return ログイン後の従業員一覧画面
+     */
+    @PostMapping("/login")
+    public String login(LoginForm form, RedirectAttributes redirectAttributes) {
+        Administrator administrator = administratorService.login(form.getMailAddress(), form.getPassword());
+        if (administrator == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "メールアドレスまたはパスワードが不正です。");
+            return "redirect:/";
+        }
+        return "redirect:/employee/showList";
+    }
+
+    /////////////////////////////////////////////////////
+    // ユースケース：ログアウトをする
+    /////////////////////////////////////////////////////
+
+    /**
+     * ログアウトをします. (SpringSecurityに任せるためコメントアウトしました)
+     *
+     * @return ログイン画面
+     */
+    @GetMapping(value = "/logout")
+    public String logout() {
+        session.invalidate();
+        return "redirect:/";
+    }
 
 }

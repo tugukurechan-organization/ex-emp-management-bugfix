@@ -7,6 +7,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.domain.Administrator;
 import com.example.repository.AdministratorRepository;
 
+import java.util.List;
+
 /**
  * 管理者情報を操作するサービス.
  * 
@@ -39,5 +41,15 @@ public class AdministratorService {
 	public Administrator login(String mailAddress, String password) {
 		Administrator administrator = administratorRepository.findByMailAddressAndPassward(mailAddress, password);
 		return administrator;
+	}
+
+	/**
+	 * メールアドレスをもとに管理者情報を検索.
+	 *
+	 * @param mailAddress 検索するメールアドレス.
+	 * @return メールアドレスで一致する管理者情報. 一致しない場合はNULL.
+	 */
+	public Administrator findByEmail(String mailAddress){
+		return administratorRepository.findByMailAddress(mailAddress);
 	}
 }

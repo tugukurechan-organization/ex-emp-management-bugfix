@@ -90,7 +90,7 @@
       </ol>
 
       <div class = "searchByName">
-        <form method="post" action="../employee/list.html" th:action="@{/employee/search}">
+        <form method="get" action="../employee/list.html" th:action="@{/employee/showList}">
           名前検索：<input type="text" name="name"><br>
           <button>検索</button>
         </form>

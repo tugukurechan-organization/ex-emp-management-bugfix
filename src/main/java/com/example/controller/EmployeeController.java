@@ -8,10 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 import com.example.domain.Employee;
 import com.example.form.UpdateEmployeeForm;
@@ -50,7 +47,7 @@ public class EmployeeController {
      * @return 従業員一覧画面
      */
     @GetMapping("/showList")
-    public String showList(@DefaultValue(value = "") String name, Model model) {
+    public String showList(@RequestParam(defaultValue = "") String name, Model model) {
         List<Employee> employeeList = employeeService.searchByName(name);
         if (employeeList.isEmpty()) {
             model.addAttribute("notFoundMessage", "該当者はいませんでした。");

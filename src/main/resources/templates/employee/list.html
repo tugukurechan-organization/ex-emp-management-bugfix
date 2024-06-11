@@ -89,6 +89,13 @@
         </li>
       </ol>
 
+      <div class = "searchByName">
+        <form method="get" action="../employee/list.html" th:action="@{/employee/showList}">
+          名前検索：<input type="text" name="name"><br>
+          <button>検索</button>
+        </form>
+      </div>
+
       <!-- table -->
       <div class="row">
         <div
@@ -96,9 +103,10 @@
         >
           <!-- ここから上を編集する必要はありません -->
 
+          <div th:text="${notFoundMessage}"></div>
           <!-- ここにモックのtable要素を貼り付けます -->
 
-          <table class="table table-striped">
+          <table class="table table-striped" th:if="${employeeList}">
             <thead>
               <tr>
                 <th>従業員名</th>

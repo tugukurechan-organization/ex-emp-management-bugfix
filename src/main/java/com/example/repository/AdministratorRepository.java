@@ -61,7 +61,7 @@ public class AdministratorRepository {
     }
 
     /**
-     * メールアドレスから管理者情報を取得します.
+     * メールアドレスから管理者情報を取得し.一致する管理者情報を返す.
      *
      * @param mailAddress メールアドレス
      * @return 管理者情報 存在しない場合はnullを返します
